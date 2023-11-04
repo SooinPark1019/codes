@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main(){
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int V, E;
+    int K;
+    vector<pair<int, int>> graph[20005];
+    vector<int> dis;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> PQ;
+
+    cin >> V >> E;
+    cin >> K;
+    for(int i=0; i<E; i++){
+        int a, b, c;
+        cin >> a >> b >> c;
+        graph[a].push_back(make_pair(c ,b));
+    }
+    for(int i=0; i<V+1; i++){
+        dis.push_back(987654321);
+    }
+    dis[K]=0;
+    PQ.push(make_pair(0, K));
+    while(!PQ.empty()){
+        int cost=PQ.top().first;
+        int start=PQ.top().second;
+        PQ.pop();
+        if(dis[start]!=cost) continue;
+        for(auto p : graph[start])
+        {
+            int line_cost=p.first;
+            int goal=p.second;
+            if(cost+line_cost<dis[goal]){
+                dis[goal]=cost+line_cost;
+                PQ.push(make_pair(dis[goal], goal));
+            }
+        }
+    }
+    for(int i=1; i<V+1; i++){
+        if(dis[i]==987654321) cout << "INF" << "\n";
+        else cout << dis[i] << "\n";
+    }
+    return 0;
+}
