@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct planet{
+    int Number;
+    int x, y, z;
+};
+
+struct cmp{
+    bool operator()(planet A, planet B){
+        int a=min(abs(A.x), min(abs(A.y), abs(A.z)));
+        int b=min(abs(B.x), min(abs(B.y), abs(B.z)));
+        return a > b;
+    }
+};
+
+int main(){
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int check[100005]={};
+    int N;
+    cin >> N;
+    priority_queue<planet, vector<planet>, cmp> PQ;
+    for(int i=1; i<=N; i++){
+        int a, b, c;
+        cin >> a >> b >> c;
+        planet p={i, a, b, c};
+        PQ.push(p);
+    }
+    
+
+    return 0;
+}
