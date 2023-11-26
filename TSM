@@ -1,0 +1,96 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int unionfind[100005]={};
+int setSize[100005]={};
+int N, M;
+long long K;
+long long tempmin=0;
+long long tempmax=0;
+int flag=0;
+
+struct edge{
+    int goal;
+    int mincost;
+    int maxcost;
+    int number;
+};
+
+int possible=0;
+
+vector<edge> V[100005];
+vector<int> ans(200005);
+
+int findset(int i){
+    return (unionfind[i]==i) ? i : (unionfind[i]=findset(unionfind[i]));
+}
+
+int sizeofset(int i){
+    return setSize[findset(i)];
+}
+
+void unionset(int a, int b){
+    if(findset(a)==findset(b)) return;
+    int x=findset(a);
+    int y=findset(b);
+    unionfind[x]=y;
+    setSize[y]+=setSize[x];
+}
+
+void deunion(int i){
+    unionfind[i]=i;
+}
+
+void sol(int i){
+    if(flag==1)
+        return;
+    if(sizeofset(i)==N){
+        if(tempmin<=K && tempmax>=K)
+            possible=1;
+    }
+    for(auto e : V[i]){
+        if(findset(i)==findset(e.goal))
+            continue;
+        unionset(i, e.goal);
+        tempmin+=e.mincost;
+        tempmax+=e.maxcost;
+        if(tempmax>K){
+            flag=1;
+            return;
+        }
+        sol(e.goal);
+        deunion(e.goal);
+        tempmin-e.mincost;
+        tempmax-e.maxcost;
+    }
+    return;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+
+    cin >> N >> M >> K;
+
+    for(int i=1; i<N+1; i++)
+        setSize[i]=1;
+    for(int i=0; i<M; i++){
+        int a, b, c, d;
+        cin >> a >> b >> c >> d;
+        V[a].push_back({b, c, d, i});
+        V[b].push_back({a, c, d, i});
+    }
+    sol(1);
+    if(flag==1){
+        cout << "NO";
+    }
+    else{
+        if(possible==1)
+            cout << "YES";
+        else
+            cout << "NO";
+    }
+    return 0;
+}
