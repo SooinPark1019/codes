@@ -17,30 +17,50 @@ long long seg_init(int nodex, int nodey, int startx, int starty, int endx, int e
     }
     else{
         int midx=(startx+endx)/2;
-        return seg[nodex][nodey]=seg_init(nodex*2, nodey, startx, starty, midx, endy)+seg_init(nodex*2+1, nodey, midx+1, starty, endx, endy);
+        if(starty==endy){
+            return seg[nodex][nodey]=seg_init(nodex*2, nodey, startx, starty, midx, endy)+seg_init(nodex*2+1, nodey, midx+1, starty, endx, endy);
+        }
+        else{
+            int midy=(starty+endy)/2;
+            return seg[nodex][nodey]=seg_init(nodex*2, nodey*2, startx, starty, midx, midy)+seg_init(nodex*2+1, nodey*2, midx+1, starty, endx, midy)+seg_init(nodex*2, nodey*2+1, startx, midy+1, midx, endy)+seg_init(nodex*2+1, nodey*2+1, midx+1, midy+1, endx, endy);
+        }
     }
 }
 
 long long seg_sum(int nodex, int nodey, int startx, int starty, int endx, int endy, int leftx, int lefty, int rightx, int righty){
+    cout << nodex << " " << nodey << "\n";
     if(rightx<startx||endx<leftx) return 0;
     else if(leftx<=startx&&endx<=rightx){
         if(righty<starty||endy<lefty) return 0;
         else if(lefty<=starty&&endy<=righty){
+            cout << seg[nodex][nodey] << "\n";
             return seg[nodex][nodey];
         }
         else{
-            int midy=(lefty+righty)/2;
+            int midy=(starty+endy)/2;
             return seg_sum(nodex, nodey*2, startx, starty, endx, midy, leftx, lefty, rightx, righty)+seg_sum(nodex, nodey*2+1, startx, midy+1, endx, endy, leftx, lefty, rightx, righty);
         }
     }
     else{
-        int midx=(leftx+rightx)/2;
+        int midx=(startx+endx)/2;
         return seg_sum(nodex*2, nodey, startx, starty, midx, endy, leftx, lefty, rightx, righty)+seg_sum(nodex*2+1, nodey, midx+1, starty, endx, endy, leftx, lefty, rightx, righty);
     }
 }
 
 void seg_update(int nodex, int nodey, int startx, int starty, int endx, int endy, int indexx, int indexy, int value){
-    if(indexx<startx||endx<indexx||indexy<starty||endy<)
+    if(indexx<startx||endx<indexx||indexy<starty||endy<indexy) return;
+    seg[nodex][nodey]+=value;
+    if(startx!=endx){
+        int midx=(startx+endx)/2;
+        seg_update(nodex*2, nodey, startx, starty, midx, endy, indexx, indexy, value);
+        seg_update(nodex*2+1, nodey, midx+1, starty, endx, endy, indexx, indexy, value);
+    }
+    else if(starty!=endy){
+        int midy=(starty+endy)/2;
+        seg_update(nodex, nodey*2, startx, starty, endx, midy, indexx, indexy, value);
+        seg_update(nodex, nodey*2+1, startx, midy+1, endx, endy, indexx, indexy, value);
+    }
+    return;
 }
 
 int main(){
@@ -52,8 +72,8 @@ int main(){
     cin >> N >> M;
     int height=ceil(log2(N))+1;
     int segsize=1<<height;
-    for(int i=1; i<=segsize; i++){
-        seg[i].resize(segsize);
+    for(int i=1; i<=segsize+1; i++){
+        seg[i].resize(segsize+1);
     }
     for(int i=0; i<N; i++){
         for(int j=0; j<N; j++){
@@ -62,19 +82,24 @@ int main(){
             arr[i].push_back(a);
         }
     }
-    seg_init(1, 1, 0, 0, N-1, N-1);
+    for(int i=1; i<=segsize; i++){
+        for(int j=1; j<=segsize; j++){
+            cout << seg[i][j] << " ";
+        }
+        cout << "\n";
+    }
     while(M--){
         int a;
         cin >> a;
         if(a==1){
             int x1, y1, x2, y2;
             cin >> x1 >> y1 >> x2 >> y2;
-            cout << seg_sum(1, 1, 0, 0, N-1, N-1, x1, y1, x2, y2);
+            cout << seg_sum(1, 1, 0, 0, N-1, N-1, x1, y1, x2, y2) << "\n";
         }
         else{
             int x, y, c;
             cin >> x >> y >> c;
-            c=V[x-1][y-1]-c;
+            c=arr[x-1][y-1]-c;
             seg_update(1, 1, 0, 0, N-1, N-1, x-1, y-1, c);
         }
     }
