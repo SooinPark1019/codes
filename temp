@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct road{
+    int goal, cost;
+};
+
+struct compare{
+    bool operator()(road A, road B){
+        return B.cost<A.cost;
+    }
+};
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N, M;
+    cin >> N >> M;
+    vector<road> V[100005];
+    int minnum=1000001;
+    for(int i=0; i<N; i++){
+        int a, b ,c;
+        cin >> a >> b >> c;
+        V[a].push_back({b, c});
+        V[b].push_back({a, c});
+        minnum=min(minnum, a);
+    }
+    int maxcost=0;
+    int total=0;
+    int visited[100005]={};
+    priority_queue<road> PQ;
+    PQ.push({minnum, 0});
+    while(PQ.empty()){
+        int start=PQ.top().goal;
+        int cost=PQ.top().cost;
+        if(visited[start]!=0) continue;
+        visited[start]=1;
+        total+=cost;
+        maxcost=max(maxcost, cost);
+        for(auto r : V[start]){
+            if(visited[r.goal]!=0) continue;
+            PQ.push(r);
+        }
+    }
+    cout << total-maxcost;
+    return 0;
+}
