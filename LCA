@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N;
+    cin >> N;
+    int sparsetable[100005][20]={};
+    int depth[100005]={};
+    vector<int> T[100005];
+    for(int i=0; i<N-1; i++){
+        int a, b;
+        cin >> a >> b;
+        T[a].push_back(b);
+        T[b].push_back(a);
+    }
+    queue<int> Q;
+    sparsetable[1][0]=-1;
+    Q.push(1);
+    depth[1]=0;
+    while(!Q.empty()){
+        int a=Q.front();
+        Q.pop();
+        for(auto i : T[a]){
+            if(i==sparsetable[a][0]) continue;
+            sparsetable[i][0]=a;
+            Q.push(i);
+            depth[i]=depth[a]+1;
+        }
+    }
+    for(int i=1; i<20; i++){
+        for(int j=1; j<=N; j++){
+            sparsetable[j][i]=sparsetable[sparsetable[j][i-1]][i-1];
+        }
+    }
+    int M;
+    cin >> M;
+    while(M--){
+        int a, b;
+        cin >> a >> b;
+        if(depth[a]<depth[b]) swap(a, b);
+        int depthdis=depth[a]-depth[b];
+        int i=0;
+        while(depthdis!=0){
+            if(depthdis&1!=0) a=sparsetable[a][i];
+            i++;
+            depthdis=depthdis>>1;
+        }
+        if(a==b){
+            cout << a << "\n";
+            continue;
+        }
+        while(sparsetable[a][0]!=sparsetable[b][0]){
+            for(int i=18; i>=0; i--){
+                if(sparsetable[a][i]!=sparsetable[b][i]){
+                    a=sparsetable[a][i];
+                    b=sparsetable[b][i];
+                    break;
+                }
+            }
+
+        }
+        cout << sparsetable[a][0] << "\n";
+    }
+    return 0;
+}
