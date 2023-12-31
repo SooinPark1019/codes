@@ -1,0 +1,118 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+const int MAX=20005;
+int V, E;
+int id=0;
+int d[MAX];
+int finished[MAX];
+vector<int> graph[MAX];
+int Sccnum=0;
+int sn[MAX];
+stack<int> S;
+int ans[MAX];
+vector<int> SCCgraph[MAX];
+int indegree[MAX];
+vector<vector<int>> SCC;
+
+int DFS(int node){
+    d[node]=++id;
+    S.push(node);
+
+    int result=d[node];
+    for(auto i : graph[node]){
+        if(d[i]==0) result=min(result, DFS(i));
+        else if(finished[i]==0) result=min(result, d[i]);
+    }
+    if(result==d[node]){
+        vector<int> component;
+        while(1){
+            int temp=S.top();
+            S.pop();
+            finished[temp]=1;
+            component.push_back(temp);
+            sn[temp]=Sccnum;
+            if(temp==node) break;
+        }
+        sort(component.begin(), component.end());
+        SCC.push_back(component);
+        Sccnum++;
+    }
+    return result;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> V >> E;
+    for(int i=0; i<E; i++){
+        int a, b;
+        cin >> a >> b;
+        int nota=-a, notb=-b;
+        a+=10000;
+        b+=10000;
+        nota+=10000;
+        notb+=10000;
+        graph[nota].push_back(b);
+        graph[notb].push_back(a);
+    }
+    for(int i=1; i<=V; i++){
+        int a=10000+i;
+        int b=10000-i;
+        if(d[a]==0) DFS(a);
+        if(d[b]==0) DFS(b);
+    }
+    int flag=1;
+    for(int i=1; i<=V; i++){
+        int a=10000+i;
+        int b=10000-i;
+        if(sn[a]==sn[b]){
+            flag=0;
+            break;
+        }
+    }
+    cout << flag << "\n";
+    if(flag==1){
+        for(int i=1; i<=V; i++){
+            int a=10000+i;
+            int b=10000-i;
+            for(auto j : graph[a]){
+                if(sn[j]==sn[a]) continue;
+                SCCgraph[sn[a]].push_back(sn[j]);
+                indegree[sn[j]]++;
+            }
+            for(auto j : graph[b]){
+                if(sn[j]==sn[b]) continue;
+                SCCgraph[sn[b]].push_back(sn[j]);
+                indegree[sn[j]]++;
+            }
+        }
+        queue<int> Q;
+        for(int i=0; i<Sccnum; i++){
+            if(indegree[i]==0) Q.push(i);
+        }
+        memset(ans, -1, sizeof(ans));
+        while(!Q.empty()){
+            int curscc=Q.front();
+            Q.pop();
+            for(int i : SCC[curscc]){
+                if(ans[i]==-1){
+                    ans[i]=0;
+                    ans[20000-i]=1;
+                }
+            }
+            for(auto i : SCCgraph[curscc]){
+                indegree[i]--;
+                if(indegree[i]==0)
+                    Q.push(i);
+            }
+        }
+        for(int i=1; i<=V; i++){
+            cout << ans[i+10000] << " ";
+        }
+    }
+
+    return 0;
+}
