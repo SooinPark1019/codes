@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int treesize;
+int maxseg[400000];
+int minseg[400000];
+
+long long max_query(int node, int start, int end, int left, int right){
+    if(node>=treesize) return 0;
+    if(left>end||right<start) return 0;
+    if(left<=start&&end<=right) return maxseg[node];
+    int mid=(start+end)/2;
+    return max(max_query(node*2, start, mid, left, right), max_query(node*2+1, mid+1, end, left, right));
+}
+
+long long min_query(int node, int start, int end, int left, int right){
+    if(node>=treesize) return 987654321;
+    if(left>end||right<start) return 987654321;
+    if(left<=start&&end<=right) return minseg[node];
+    int mid=(start+end)/2;
+    return min(min_query(node*2, start, mid, left, right), min_query(node*2+1, mid+1, end, left, right));
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int T;
+    cin >> T;
+    while(T--){
+        int N, K;
+        cin >> N >> K;
+        int height=ceil(log2(N));
+        treesize=(1<<(height+1));
+        memset(maxseg, 0, sizeof(maxseg));
+        memset(minseg, 0, sizeof(minseg));
+        for(int i=0; i<treesize/2; i++){
+            int index=treesize/2+i ;
+            if(i<N){
+                maxseg[index]=i;
+                minseg[index]=i;
+            }
+            else{
+                maxseg[index]=0;
+                minseg[index]=987654321;
+            }
+        }
+        for(int i=treesize/2-1; i>=1; i--){
+            maxseg[i]=max(maxseg[i*2], maxseg[i*2+1]);
+            minseg[i]=min(minseg[i*2], minseg[i*2+1]);
+        }
+        for(int i=0; i<K; i++){
+            int a;
+            cin >> a;
+            if(a==0){
+                int b, c;
+                cin >> b >> c;
+                int indexb=treesize/2+b;
+                int indexc=treesize/2+c;
+                int maxb=maxseg[indexb];
+                int maxc=maxseg[indexc];
+                maxseg[indexb]=maxc;
+                maxseg[indexc]=maxb;
+                int minb=minseg[indexb];
+                int minc=minseg[indexc];
+                minseg[indexb]=minc;
+                minseg[indexc]=minb;
+                indexb/=2;
+                indexc/=2;
+                while(indexb>=1){
+                    maxseg[indexb]=max(maxseg[indexb*2], maxseg[indexb*2+1]);
+                    minseg[indexb]=min(minseg[indexb*2], minseg[indexb*2+1]);
+                    indexb/=2;
+                }
+                while(indexc>=1){
+                    maxseg[indexc]=max(maxseg[indexc*2], maxseg[indexc*2+1]);
+                    minseg[indexc]=min(minseg[indexc*2], minseg[indexc*2+1]);
+                    indexc/=2;
+                }
+            }
+            if(a==1){
+                int b, c;
+                cin >> b >> c;
+                if(max_query(1, 0, treesize/2-1, b, c)==c&&min_query(1, 0, treesize/2-1, b, c)==b) cout << "YES\n";
+                else cout << "NO\n";
+            }
+        }
+    }
+
+    return 0;
+}
