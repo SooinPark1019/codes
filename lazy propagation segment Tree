@@ -1,0 +1,92 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int N;
+vector<long long> V;
+vector<long long> Seg;
+vector<long long> lazy;
+
+void LazyUpdate(int node, int start, int end){
+    if(lazy[node]!=0){
+        Seg[node]+=(long long)lazy[node]*(long long)(end-start+1);
+        if(start!=end){
+            lazy[node*2]+=lazy[node];
+            lazy[node*2+1]+=lazy[node];
+        }
+        lazy[node]=0;
+    }
+    return;
+}
+
+long long InitSeg(int node, int start, int end){
+    if(start==end) return Seg[node]=V[start];
+    int mid=(start+end)/2;
+    return Seg[node]=InitSeg(node*2, start, mid)+InitSeg(node*2+1, mid+1, end);
+}
+
+void UpdateSeg(int node, int start, int end, int left, int right, long long value){
+    LazyUpdate(node, start ,end);
+    if(right<start||end<left) return;
+    else if(left<=start&&end<=right){
+        Seg[node]+=value*(long long)(end-start+1);
+        if(start!=end){
+            lazy[node*2]+=value;
+            lazy[node*2+1]+=value;
+        }
+    }
+    else{
+        int mid=(start+end)/2;
+        UpdateSeg(node*2, start, mid, left, right, value);
+        UpdateSeg(node*2+1, mid+1, end, left, right, value);
+        Seg[node]=Seg[node*2]+Seg[node*2+1];
+    }
+    return;
+}
+
+long long SumSeg(int node, int start, int end, int left, int right){
+    LazyUpdate(node, start, end);
+    if(right<start||end<left) return 0;
+    else if(left<=start&&end<=right){
+        return Seg[node];
+    }
+    else{
+        int mid=(start+end)/2;
+        return SumSeg(node*2, start, mid, left, right)+SumSeg(node*2+1, mid+1, end, left, right);
+    }
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> N;
+    for(int i=0; i<N; i++){
+        long long a;
+        cin >> a;
+        V.push_back(a);
+    }
+    int height=ceil(log2(N));
+    int segsize=1<<(height+1);
+    Seg.resize(segsize+1);
+    lazy.resize(segsize+1);
+    InitSeg(1, 0, N-1);
+    int M;
+    cin >> M;
+    while(M--){
+        int a;
+        cin >> a;
+        if(a==1){
+            int b, c;
+            long long d;
+            cin >> b >> c >> d;
+            UpdateSeg(1, 0, N-1, b-1, c-1, d);
+        }
+        else{
+            int x;
+            cin >> x;
+            cout << SumSeg(1, 0, N-1, x-1, x-1) << "\n";
+        }
+    }
+    return 0;
+}
