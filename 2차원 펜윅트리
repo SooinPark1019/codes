@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int N, Q;
+long long Fenwick[10005][10005];
+
+struct rectangle{
+    int l, r, b, t;
+};
+struct folks{
+    int x, y;
+};
+
+void update(int xindex, int yindex, long long value){
+    while(yindex<=10000){
+        int temp=xindex;
+        while(temp<=10000){
+            Fenwick[yindex][temp]+=value;
+            temp+=temp&(-temp);
+        }
+        yindex+=yindex&(-yindex);
+    }
+    return;
+}
+long long sum(int xindex, int yindex){
+    long long ret=0;
+    while(yindex>0){
+        int temp=xindex;
+        while(temp>0){
+            ret+=Fenwick[yindex][temp];
+            temp-=temp&(-temp);
+        }
+        yindex-=yindex&(-yindex);
+    }
+    return ret;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int T;
+    cin >> T;
+    while(T--){
+        memset(Fenwick, 0, sizeof(Fenwick));
+        int N, M;
+        cin >> N >> M;
+        vector<int> xvector;
+        vector<int> yvector;
+        vector<folks> folksvector;
+        long long ans=0;
+        for(int i=0; i<N; i++){
+            int x, y;
+            cin >> x >> y;
+            xvector.push_back(x);
+            yvector.push_back(y);
+            folksvector.push_back({x, y});
+        }
+        vector<rectangle> rectanglevector;
+        for(int i=0; i<M; i++){
+            int l, r, b ,t;
+            cin >> l >> r >> b >> t;
+            rectanglevector.push_back({l, r, b ,t});
+        }
+        sort(xvector.begin(), xvector.end());
+        sort(yvector.begin(), yvector.end());
+        xvector.erase(unique(xvector.begin(), xvector.end()), xvector.end());
+        yvector.erase(unique(yvector.begin(), yvector.end()), yvector.end());
+        for(int i=0; i<folksvector.size(); i++){
+            int x=folksvector[i].x;
+            int y=folksvector[i].y;
+            auto compressedx=lower_bound(xvector.begin(), xvector.end(), x)-xvector.begin()+1;
+            auto compressedy=lower_bound(yvector.begin(), yvector.end(), y)-yvector.begin()+1;
+            update(compressedx, compressedy, 1);
+        }
+        for(int i=0; i<rectanglevector.size(); i++){
+            int l=rectanglevector[i].l;
+            int r=rectanglevector[i].r;
+            int b=rectanglevector[i].b;
+            int t=rectanglevector[i].t;
+            auto compressedl=lower_bound(xvector.begin(), xvector.end(), l)-xvector.begin();
+            if(xvector[compressedl]==l) compressedl++;
+            auto compressedr=lower_bound(xvector.begin(), xvector.end(), r)-xvector.begin();
+            if(xvector[compressedr]==r) compressedr++;
+            auto compressedb=lower_bound(yvector.begin(), yvector.end(), b)-yvector.begin();
+            if(yvector[compressedb]==b) compressedb++;
+            auto compressedt=lower_bound(yvector.begin(), yvector.end(), t)-yvector.begin();
+            if(yvector[compressedt]==t) compressedt++;
+            ans+=sum(compressedr, compressedt);
+            if(compressedl!=1) ans-=sum(compressedl-1, compressedt);
+            if(compressedb!=1) ans-=sum(compressedr, compressedb-1);
+            if(compressedl!=1&&compressedb!=1) ans+=sum(compressedl-1, compressedb-1);
+        }
+        cout << ans << "\n";
+    }
+
+
+    return 0;
+}
