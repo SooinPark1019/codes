@@ -1,0 +1,108 @@
+ #include <bits/stdc++.h>
+using namespace std;
+
+long long cache[15][15][17000];
+char arr[15][15];
+int N, M;
+
+int score(string str){
+    if(str[0]=='A'){
+        if(str[1]=='A')
+            return 10;
+        if(str[1]=='B')
+            return 8;
+        if(str[1]=='C')
+            return 7;
+        if(str[1]=='D')
+            return 5;
+        if(str[1]=='F')
+            return 1;
+    }
+    if(str[0]=='B'){
+        if(str[1]=='A')
+            return 8;
+        if(str[1]=='B')
+            return 6;
+        if(str[1]=='C')
+            return 4;
+        if(str[1]=='D')
+            return 3;
+        if(str[1]=='F')
+            return 1;
+    }
+    if(str[0]=='C'){
+        if(str[1]=='A')
+            return 7;
+        if(str[1]=='B')
+            return 4;
+        if(str[1]=='C')
+            return 3;
+        if(str[1]=='D')
+            return 2;
+        if(str[1]=='F')
+            return 1;
+    }
+    if(str[0]=='D'){
+        if(str[1]=='A')
+            return 5;
+        if(str[1]=='B')
+            return 3;
+        if(str[1]=='C')
+            return 2;
+        if(str[1]=='D')
+            return 2;
+        if(str[1]=='F')
+            return 1;
+    }
+    if(str[0]=='F'){
+        if(str[1]=='A')
+            return 1;
+        if(str[1]=='B')
+            return 1;
+        if(str[1]=='C')
+            return 1;
+        if(str[1]=='D')
+            return 1;
+        if(str[1]=='F')
+            return 0;
+    }
+}
+
+long long ans(int row, int col, int status){
+    if(row==N) return 0;
+    if(col>=M) return ans(row+1, 0, status);
+    long long& ret=cache[row][col][status];
+    if(ret!=-1) return ret;
+    ret=ans(row, col+1, (status>>1));
+    if(status&(1<<0)) return ret;
+    if(row!=N-1){
+        string str1(1, arr[row][col]);
+        string str2(1, arr[row+1][col]);
+        string str=str1+str2;
+        ret=max(ret, ans(row, col+1, ((status+(1<<M))>>1))+score(str));
+    }
+    if(col!=M-1&&(status&(1<<1))==0){
+        string str1(1, arr[row][col]);
+        string str2(1, arr[row][col+1]);
+        string str=str1+str2;
+        ret=max(ret, ans(row, col+2, (status>>2))+score(str));
+    }
+    return ret;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    memset(cache, -1, sizeof(cache));
+    cin >> N >> M;
+    for(int i=0; i<N; i++){
+        for(int j=0; j<M; j++){
+            cin >> arr[i][j];
+        }
+    }
+
+    cout << ans(0, 0, 0);
+    return 0;
+}
