@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int N, M;
+vector<long long> V;
+vector<long long> Seg;
+vector<long long> lazy;
+vector<long long> A;
+vector<long long> B;
+vector<long long> C;
+vector<long long> reversesumV;
+
+void LazyUpdate(int node, int start, int end){
+    if(lazy[node]!=0){
+        if(start!=end){
+            lazy[node*2]+=lazy[node];
+            lazy[node*2+1]+=lazy[node];
+            Seg[node*2]+=lazy[node];
+            Seg[node*2+1]=lazy[node];
+        }
+        lazy[node]=0;
+    }
+    return;
+}
+
+long long InitSeg(int node, int start, int end){
+    if(start==end) return Seg[node]=reversesumV[start];
+    int mid=(start+end)/2;
+    return Seg[node]=max(InitSeg(node*2, start, mid), InitSeg(node*2+1, mid+1, end));
+}
+
+void UpdateSeg(int node, int start, int end, int left, int right, long long value){
+    LazyUpdate(node, start ,end);
+    if(right<start||end<left) return;
+    else if(left<=start&&end<=right){
+        Seg[node]+=value;
+        lazy[node]+=value;
+    }
+    else{
+        int mid=(start+end)/2;
+        UpdateSeg(node*2, start, mid, left, right, value);
+        UpdateSeg(node*2+1, mid+1, end, left, right, value);
+        Seg[node]=max(Seg[node*2], Seg[node*2+1]);
+    }
+    return;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> N >> M;
+    int height=ceil(log2(N));
+    int segsize=1<<(height+1);
+    Seg.resize(segsize+1);
+    lazy.resize(segsize+1);
+    A.resize(N+1);
+    B.resize(N+1);
+    C.resize(N+1);
+    V.resize(N+1);
+    reversesumV.resize(N+1);
+    long long totalA=0;
+    for(int i=0; i<N; i++){
+        int a;
+        cin >> a;
+        A.push_back(a);
+        totalA+=a;
+    }
+    for(int i=0; i<N; i++){
+        int a;
+        cin >> a;
+        B.push_back(a);
+    }
+    for(int i=0; i<N; i++){
+        long long a;
+        cin >> a;
+        C.push_back(a);
+    }
+    for(int i=N; i>=1; i--){
+        V[i]=A[i]-B[i];
+        reversesumV[i]=V[i];
+        if(i!=N)
+            reversesumV[i]+=V[i+1];
+    }
+    InitSeg(1, 0, N-1);
+    int M;
+    cin >> M;
+    while(M--){
+        
+    }
+    return 0;
+}
