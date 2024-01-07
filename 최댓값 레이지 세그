@@ -16,7 +16,7 @@ void LazyUpdate(int node, int start, int end){
             lazy[node*2]+=lazy[node];
             lazy[node*2+1]+=lazy[node];
             Seg[node*2]+=lazy[node];
-            Seg[node*2+1]=lazy[node];
+            Seg[node*2+1]+=lazy[node];
         }
         lazy[node]=0;
     }
@@ -30,18 +30,17 @@ long long InitSeg(int node, int start, int end){
 }
 
 void UpdateSeg(int node, int start, int end, int left, int right, long long value){
-    LazyUpdate(node, start ,end);
     if(right<start||end<left) return;
     else if(left<=start&&end<=right){
         Seg[node]+=value;
         lazy[node]+=value;
+        return;
     }
-    else{
-        int mid=(start+end)/2;
-        UpdateSeg(node*2, start, mid, left, right, value);
-        UpdateSeg(node*2+1, mid+1, end, left, right, value);
-        Seg[node]=max(Seg[node*2], Seg[node*2+1]);
-    }
+    LazyUpdate(node, start ,end);
+    int mid=(start+end)/2;
+    UpdateSeg(node*2, start, mid, left, right, value);
+    UpdateSeg(node*2+1, mid+1, end, left, right, value);
+    Seg[node]=max(Seg[node*2], Seg[node*2+1]);
     return;
 }
 
@@ -51,7 +50,7 @@ int main(){
     cout.tie(NULL);
 
     cin >> N >> M;
-    int height=ceil(log2(N));
+    int height=ceil(log2(N+1));
     int segsize=1<<(height+1);
     Seg.resize(segsize+1);
     lazy.resize(segsize+1);
@@ -61,33 +60,42 @@ int main(){
     V.resize(N+1);
     reversesumV.resize(N+1);
     long long totalA=0;
-    for(int i=0; i<N; i++){
+    for(int i=1; i<=N; i++){
         int a;
         cin >> a;
-        A.push_back(a);
+        A[i]=a;
         totalA+=a;
     }
-    for(int i=0; i<N; i++){
+    for(int i=1; i<=N; i++){
         int a;
         cin >> a;
-        B.push_back(a);
+        B[i]=a;
     }
-    for(int i=0; i<N; i++){
+    for(int i=1; i<=N-1; i++){
         long long a;
         cin >> a;
-        C.push_back(a);
+        C[i]=a;
     }
     for(int i=N; i>=1; i--){
         V[i]=A[i]-B[i];
         reversesumV[i]=V[i];
         if(i!=N)
-            reversesumV[i]+=V[i+1];
+            reversesumV[i]+=reversesumV[i+1];
     }
-    InitSeg(1, 0, N-1);
-    int M;
-    cin >> M;
-    while(M--){
-        
+    InitSeg(1, 1, N);
+    for(int i=0; i<M; i++){
+        int p;
+        long long x, y, z;
+        cin >> p >> x >> y >> z;
+        totalA-=A[p];
+        UpdateSeg(1, 1, N, 1, p, -V[p]);
+        A[p]=x;
+        B[p]=y;
+        C[p]=z;
+        V[p]=A[p]-B[p];
+        UpdateSeg(1, 1, N, 1, p, V[p]);
+        totalA+=A[p];
+        cout << totalA - max((long long)0, Seg[1]) << "\n";
     }
     return 0;
 }
