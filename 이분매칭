@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> graph[1005];
+int S[1005];
+int T[1005];
+int visited[1005]={};
+
+bool DFS(int node){
+    visited[node]=1;
+    for(auto goal : graph[node]){
+        if(T[goal]==-1||visited[T[goal]]==-1&&DFS(T[goal])){
+            S[node]=goal;
+            T[goal]=node;
+            return true;
+        }
+    }
+    return false;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N, M;
+    cin >> N >> M;
+    for(int i=0; i<N; i++){
+        int a;
+        cin >> a;
+        for(int j=0; j<a; j++){
+            int b;
+            cin >> b;
+            graph[i+1].push_back(b);
+        }
+    }
+    memset(S, -1, sizeof(S));
+    memset(T, -1, sizeof(T));
+    int ans=0;
+    for(int i=1; i<=N; i++){
+        memset(visited, -1, sizeof(visited));
+        if(DFS(i)) ans++;
+    }
+    cout << ans;
+    return 0;
+}
