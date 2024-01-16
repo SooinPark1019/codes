@@ -1,0 +1,123 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int N;
+vector<int> graph[505];
+int level[505];
+int checkededge[505];
+int S=0;
+int E=501;
+int cap[505][505]={};
+int flow[505][505]={};
+int w[505][505]={};
+int type[505]={};
+
+bool bfs(){
+    memset(level, -1, sizeof(level));
+    level[S]=0;
+    queue<int> Q;
+    Q.push(S);
+    while(!Q.empty()){
+        int x=Q.front();
+        Q.pop();
+        for(auto i : graph[x]){
+            if(level[i]!=-1||cap[x][i]<=flow[x][i]) continue;
+            level[i]=level[x]+1;
+            Q.push(i);
+        }
+    }
+    return level[E]!=-1;
+}
+
+int dfs(int cur, int dest, int f){
+    if(cur==dest) return f;
+    for(int& i=checkededge[cur]; i<graph[cur].size(); i++){
+        int nxt=graph[cur][i];
+        if((level[nxt]!=level[cur]+1)||(cap[cur][nxt]<=flow[cur][nxt])) continue;
+        int df=dfs(nxt, E, min(f, cap[cur][nxt]-flow[cur][nxt]));
+        if(df>0){
+            flow[cur][nxt]+=df;
+            flow[nxt][cur]-=df;
+            return df;
+        }
+    }
+    return 0;
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> N;
+    for(int i=1; i<=N; i++){
+        cin >> type[i];
+    }
+    for(int i=1; i<=N; i++){
+        for(int j=1; j<=N; j++){
+            cin >> w[i][j];
+        }
+    }
+    for(int i=1; i<=N; i++){
+        if(type[i]==0){
+            for(int j=1; j<=N; j++){
+                if(i==j) continue;
+                graph[i].push_back(j);
+                cap[i][j]=w[i][j];
+            }
+        }
+        else if(type[i]==1){
+            for(int j=1; j<=N; j++){
+                if(type[j]==1||i==j) continue;
+                graph[i].push_back(j);
+                cap[i][j]=w[i][j];
+            }
+            graph[S].push_back(i);
+            graph[i].push_back(S);
+            cap[S][i]=987654321;
+        }
+        else{
+            for(int j=1; j<=N; j++){
+                if(type[j]==2||i==j) continue;
+                graph[i].push_back(j);
+                cap[i][j]=w[i][j];
+            }
+            graph[i].push_back(E);
+            graph[E].push_back(i);
+            cap[i][E]=987654321;
+        }
+    }
+    int total=0;
+    while(bfs()){
+        memset(checkededge, 0, sizeof(checkededge));
+        while(1){
+            int temp=dfs(S, E, 987654321);
+            if(temp==0) break;
+            total+=temp;
+        }
+    }
+    cout << total << "\n";
+    int visited[505]={};
+    memset(visited, -1, sizeof(visited));
+    queue<int> Q;
+    Q.push(S);
+    visited[S]=1;
+    while(!Q.empty()){
+        int x=Q.front();
+        Q.pop();
+        for(auto i : graph[x]){
+            if(visited[i]!=-1||cap[x][i]<=flow[x][i]) continue;
+            visited[i]=1;
+            Q.push(i);
+        }
+    }
+    for(int i=1; i<=N; i++){
+        if(visited[i]!=-1) cout << i << " ";
+    }
+    cout << "\n";
+    for(int i=1; i<=N; i++){
+        if(visited[i]==-1) cout << i << " ";
+    }
+    cout << "\n";
+    return 0;
+}
