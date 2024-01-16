@@ -1,0 +1,83 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+vector<int> graph[805];
+int flow[805][805]={};
+int cap[805][805]={};
+int d[805][805]={};
+int inqueue[805]={};
+int visited[805];
+int dist[805];
+int s=802;
+int e=803;
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N, M;
+    cin >> N >> M;
+    for(int i=1; i<=N; i++){
+        graph[s].push_back(i);
+        graph[i].push_back(s);
+        cap[s][i]=1;
+    }
+    for(int i=401; i<=M+400; i++){
+        graph[e].push_back(i);
+        graph[i].push_back(e);
+        cap[i][e]=1;
+    }
+    for(int i=1; i<=N; i++){
+        int a;
+        cin >> a;
+        for(int j=0; j<a; j++){
+            int b, c;
+            cin >> b >> c;
+            graph[i].push_back(b+400);
+            graph[b+400].push_back(i);
+            cap[i][b+400]=1;
+            d[i][b+400]=(-1)*c;
+            d[b+400][i]=c;
+        }
+    }
+    int ans=0;
+    int result=0;
+    while(1){
+        memset(visited, -1, sizeof(visited));
+        memset(inqueue, 0, sizeof(inqueue));
+        fill(dist, dist+804, 987654321);
+        queue<int> Q;
+        dist[s]=0;
+        inqueue[s]=1;
+        Q.push(s);
+        while(!Q.empty()){
+            int x=Q.front();
+            Q.pop();
+            inqueue[x]=0;
+            for(auto i : graph[x]){
+                if(dist[i]<=dist[x]+d[x][i]||cap[x][i]<=flow[x][i]) continue;
+                visited[i]=x;
+                dist[i]=dist[x]+d[x][i];
+                if(inqueue[i]==0){
+                    Q.push(i);
+                    inqueue[i]=1;
+                }
+            }
+        }
+        if(visited[e]==-1) break;
+        int f=987654321;
+        for(int i=e; i!=s; i=visited[i]){
+            f=min(f, cap[visited[i]][i]-flow[visited[i]][i]);
+        }
+        for(int i=e; i!=s; i=visited[i]){
+            result-=f*d[visited[i]][i];
+            flow[visited[i]][i]+=f;
+            flow[i][visited[i]]-=f;
+        }
+        ans+=f;
+    }
+    cout << ans << "\n" << result;
+    return 0;
+}
