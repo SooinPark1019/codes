@@ -58,7 +58,7 @@ int main(){
         else{
             int b;
             cin >> b;
-            cout << sum(b) << "\n";
+            cout << sum(S[b]) << "\n";
         }
     }
 
