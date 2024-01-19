@@ -3,7 +3,7 @@
 using namespace std;
 
 int N, Q;
-vector<long long> Fenwick;
+long long Fenwick[500005];
 vector<int> graph[100005];
 int S[100005], E[100005], cnt=0;
 
