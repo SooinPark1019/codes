@@ -1,0 +1,81 @@
+#include <bits/stdc++.h>
+/*#pragma GCC optimize ("O3")
+#pragma GCC optimize ("Ofast")
+#pragma GCC optimize ("unroll-loops")
+#pragma GCC target("avx,avx2,fma")*/
+using namespace std;
+int N;
+int sqrtn;
+vector<int> a;
+struct query{
+    int start, end, index;
+};
+bool compare(query A, query B){
+    if(A.start/sqrtn==B.start/sqrtn) return A.end<B.end;
+    return A.start/sqrtn < B.start/sqrtn;
+}
+vector<query> V;
+int ans[100005];
+int M[1000005]={};
+int cnt=0;
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> N;
+    sqrtn=sqrt(N);
+    for(int i=0; i<N; i++){
+        int b;
+        cin >> b;
+        a.push_back(b);
+    }
+    int Q;
+    cin >> Q;
+    for(int i=0; i<Q; i++){
+        int x, y;
+        cin >> x >> y;
+        V.push_back({x-1, y-1, i});
+    }
+    sort(V.begin(), V.end(), compare);
+    int start=V[0].start;
+    int end=V[0].end;
+    int index=V[0].index;
+    for(int i=start; i<=end; i++){
+        M[a[i]]++;
+        if(M[a[i]]==1) cnt++;
+    }
+    ans[index]=cnt;
+    for(int i=1; i<Q; i++){
+        int curs=V[i].start;
+        int cure=V[i].end;
+        int curi=V[i].index;
+        while(start>curs){
+            start--;
+            M[a[start]]++;
+            if(M[a[start]]==1) cnt++;
+
+        }
+        while(start<curs){
+            M[a[start]]--;
+            if(M[a[start]]==0) cnt--;
+            start++;
+        }
+        while(end>cure){
+            M[a[end]]--;
+            if(M[a[end]]==0) cnt--;
+            end--;
+        }
+        while(end<cure){
+            end++;
+            M[a[end]]++;
+            if(M[a[end]]==1) cnt++;
+        }
+        ans[curi]=cnt;
+    }
+    for(int i=0; i<Q; i++){
+        cout << ans[i] << "\n";
+    }
+    return 0;
+}
