@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N, M;
+    cin >> N >> M;
+    vector<int> graph[1005];
+    int indeg[1005]={};
+    for(int i=0; i<M; i++){
+        int a;
+        cin >> a;
+        vector<int> V;
+        for(int j=0; j<a; j++){
+            int b;
+            cin >> b;
+            V.push_back(b);
+        }
+        for(int j=1; j<a; j++){
+            graph[V[j-1]].push_back(V[j]);
+            indeg[V[j]]++;
+        }
+    }
+    queue<int> Q;
+    vector<int> ans;
+    for(int i=1; i<=N; i++){
+        if(indeg[i]==0) Q.push(i);
+    }
+    while(!Q.empty()){
+        int x=Q.front();
+        Q.pop();
+        ans.push_back(x);
+        for(auto i : graph[x]){
+            indeg[i]--;
+            if(indeg[i]==0) Q.push(i);
+        }
+    }
+    if(ans.size()!=N) cout << 0;
+    else{
+        for(auto i : ans)
+            cout << i << "\n";
+    }
+    return 0;
+}
