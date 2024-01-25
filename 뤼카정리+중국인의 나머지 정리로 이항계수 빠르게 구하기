@@ -1,0 +1,133 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef __int128 i128;
+
+pair<__int128,pair<__int128,__int128>> xGCD(__int128 a, __int128 b) {
+    if(b == 0) return {a,{1,0}};
+    pair<__int128,pair<__int128,__int128>> ret = xGCD(b, a%b);
+    __int128 g, x, y;
+    g = ret.first;
+    tie(x,y) = ret.second;
+    return {g,{y,x-(a/b)*y}};
+}
+__int128 GCD(__int128 a, __int128 b){
+    if(b==0) return a;
+    return GCD(b, a%b);
+}
+pair<ll,ll> CRT(vector<ll> &A, vector<ll> &M) {
+    if(A.size() != M.size()) return {-1,-1};
+    int N = A.size();
+    ll a1 = A[0];
+    ll m1 = M[0];
+    a1 %= m1;
+    for(int i=1;i<N;++i) {
+        ll a2 = A[i];
+        ll m2 = M[i];
+        ll g = __gcd(m1, m2);
+        if(a1 % g != a2 % g) return {-1,-1};
+        ll p, q;
+        auto res = xGCD(m1/g, m2/g);
+        tie(p,q) = res.second;
+        i128 mod = (i128)m1 / g * m2;
+        a1 = ((i128)a1 * (m2/g) % mod) * q % mod + ((i128)a2*(m1/g)%mod)*p % mod;
+        a1 = (a1 + mod) % mod;
+        m1 = mod;
+    }
+    return {a1, m1};
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int T;
+    cin >> T;
+    i128 DP27[27][27]={};
+    for(int i=0; i<27; i++){
+        for(int j=0; j<=i; j++){
+            if(i==0||j==0||i==j) DP27[i][j]=1;
+            else DP27[i][j]=(DP27[i-1][j-1]+DP27[i-1][j])%27;
+        }
+    }
+    i128 DP11[11][11]={};
+    for(int i=0; i<11; i++){
+        for(int j=0; j<=i; j++){
+            if(i==0||j==0||i==j) DP11[i][j]=1;
+            else DP11[i][j]=(DP11[i-1][j-1]+DP11[i-1][j])%11;
+        }
+    }
+    i128 DP13[98][98]={};
+    for(int i=0; i<13; i++){
+        for(int j=0; j<=i; j++){
+            if(i==0||j==0||i==j) DP13[i][j]=1;
+            else DP13[i][j]=(DP13[i-1][j-1]+DP13[i-1][j])%13;
+        }
+    }
+    i128 DP37[37][37]={};
+    for(int i=0; i<37; i++){
+        for(int j=0; j<=i; j++){
+            if(i==0||j==0||i==j) DP37[i][j]=1;
+            else DP37[i][j]=(DP37[i-1][j-1]+DP37[i-1][j])%37;
+        }
+    }
+    while(T--){
+        long long N, M;
+        cin >> N >> M;
+        vector<ll> A;
+        vector<ll> B;
+        long long tempN;
+        long long tempM;
+        tempN=N;
+        tempM=M;
+        ll temp=1;
+        while(tempN>0){
+            temp*=DP27[tempN%27][tempM%27]%27;
+            temp%=27;
+            tempN/=27;
+            tempM/=27;
+        }
+        A.push_back(temp);
+        B.push_back(27);
+        tempN=N;
+        tempM=M;
+        temp=1;
+        while(tempN>0){
+            temp*=DP11[tempN%11][tempM%11]%11;
+            temp%=11;
+            tempN/=11;
+            tempM/=11;
+        }
+        A.push_back(temp);
+        B.push_back(11);
+        tempN=N;
+        tempM=M;
+        temp=1;
+        while(tempN>0){
+            temp*=DP13[tempN%13][tempM%13]%13;
+            temp%=13;
+            tempN/=13;
+            tempM/=13;
+        }
+        A.push_back(temp);
+        B.push_back(13);
+        tempN=N;
+        tempM=M;
+        temp=1;
+        while(tempN>0){
+            temp*=DP37[tempN%37][tempM%37]%37;
+            temp%=37;
+            tempN/=37;
+            tempM/=37;
+        }
+        A.push_back(temp);
+        B.push_back(37);
+        ll ans1;
+        ll ans2;
+        tie(ans1, ans2)=CRT(A, B);
+        cout << (unsigned long long)ans1 << "\n";
+    }
+    return 0;
+}
