@@ -1,0 +1,42 @@
+//오일러 정리는 페르마 소정리의 일반화된 형태
+//페르마 소정리에서는 n이 소수일 때 a^(n-1)%n=1이었음
+//오일러 정리에서는 a^(p 이하의 수 중 p와 서로소인 수의 개수)%p=1
+//n이 소수일 때 n과 서로소인 수의 개수는 n-1이기 때문에 페르마 소정리도 성립한다
+
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef __int128 i128;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-12;
+const ll LNF = 1e18;
+const int MOD = 1e9 + 7;
+
+int main(){
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    ll n;
+    cin >> n;
+    ll temp=n;
+    ll M[1000005]={};
+    ll i=2;
+    while(n>1&&(i*i)<=temp){
+        if(n%i==0){
+            M[i]++;
+            n/=i;
+        }
+        else i++;
+    }
+    ll ans=1;
+    if(n>1) ans*=n-1;
+    for(ll i=2; i*i<=temp; i++){
+        if(M[i]!=0){
+            ans*=pow(i, M[i]-1)*(i-1);
+        }
+    }
+    cout << ans;
+    return 0;
+}
