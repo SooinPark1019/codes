@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+typedef __int128 i128;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-12;
+const ll LNF = 1e18;
+const int MOD = 1e9 + 7;
+
+int V, E;
+vector<int> graph[10005];
+int visited[10005];
+int number=1;
+int iscut[10005]={};
+
+int DFS(int cur_node, bool isroot){
+    visited[cur_node]=number++;
+    int ret=visited[cur_node];
+    int child=0;
+    for(auto i : graph[cur_node]){
+        if(visited[i]!=0){
+            ret=min(ret, visited[i]);
+            continue;
+        }
+        child++;
+        int temp=DFS(i, false);
+        if(!isroot&&temp>=visited[cur_node]){
+            iscut[cur_node]=1;
+        }
+        ret=min(ret, temp);
+    }
+    if(isroot&&child>=2)
+        iscut[cur_node]=1;
+    return ret;
+}
+
+
+int main(){
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> V >> E;
+    for(int i=0; i<E; i++){
+        int a, b;
+        cin >> a >> b;
+        graph[a].push_back(b);
+        graph[b].push_back(a);
+    }
+    for(int i=1; i<=V; i++){
+        if(visited[i]==0)
+            DFS(i, true);
+    }
+    int ans=0;
+    vector<int> cuts;
+    for(int i=1; i<=V; i++){
+        if(iscut[i]!=0){
+            ans++;
+            cuts.push_back(i);
+        }
+    }
+    cout << ans << "\n";
+    for(auto i : cuts)
+        cout << i << " ";
+}
