@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
+typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-12;
+const ll LNF = 1e18;
+const ll mod = 1e9+7;
+
+int N;
+vector<int> seg[400000];
+int arr[400000];
+
+void make_seg(int node, int start, int end){
+    if(start==end) seg[node].push_back(arr[start]);
+    else{
+        int mid=((start+end)>>1);
+        make_seg(node*2, start, mid);
+        make_seg(node*2+1, mid+1, end);
+        seg[node].resize(seg[node*2].size()+seg[node*2+1].size());
+        merge(seg[node*2].begin(), seg[node*2].end(), seg[node*2+1].begin(), seg[node*2+1].end(), seg[node].begin());
+        /*for(auto i : seg[node])
+            cout << i << " ";
+        cout << "\n";*/
+    }
+}
+
+ll query(int node, int start, int end, int left, int right, ll K){
+    if(right<start||end<left) return 0;
+    else if(left<=start&&end<=right) return seg[node].end()-upper_bound(seg[node].begin(), seg[node].end(), K);
+    else{
+        int mid=((start+end)>>1);
+        //cout << start << " " << mid << " " << query(node*2, start, mid, left, right, K) << "\n";
+        //cout << mid+1 << " " << end << " " << query(node*2+1, mid+1, end, left, right, K) << "\n";
+        return query(node*2, start, mid, left, right, K)+query(node*2+1, mid+1, end, left, right, K);
+    }
+}
+
+int main(){
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    cin >> N;
+    for(int i=0; i<N; i++){
+        cin >> arr[i];
+    }
+    make_seg(1, 0, N-1);
+    int M;
+    cin >> M;
+    while(M--){
+        int a, b, c;
+        cin >> a >> b >> c;
+        cout << query(1, 0, N-1, a-1, b-1, c) << "\n";
+    }
+    return 0;
+}
