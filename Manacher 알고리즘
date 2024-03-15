@@ -1,3 +1,6 @@
+int p, r = -1;
+int len = strlen(S);
+
 for(i = 0; i < len; i++) {
     if(i > r) {
         p = r = i;
