@@ -1,88 +1,32 @@
 #include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
 
 using namespace std;
 
-long long cache[32769][100];
-vector<string> V;
-int N, K;
-int prevmod[755];
+typedef long long ll;
+//typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 1e9+7;
 
-long long gcd(long long a, long long b){
-    if(b==0) return a;
-    else return gcd(b, a%b);
-}
+ll DP[1000005]={};
 
-long long sol(int left, int cur_mod, int cur_pos){
-    if(left==0){
-        if(cur_mod==0) return 1;
-        else return 0;
-    }
-    long long& ret=cache[left][cur_mod];
-    if(ret!=-1) return ret;
-    ret=0;
-    for(int i=0; i<N; i++){
-        long long temp=1<<i;
-        if((left&temp)==temp){
-            string s=V[i];
-            int divlen=s.length()/10;
-            int modlen=s.length()%10;
-            long long A=0;
-            for(int i=0; i<divlen; i++){
-                long long temp=stoi(s.substr(10*i, 10));
-                temp%=K;
-                temp*=prevmod[i*10];
-                temp%=K;
-                A+=temp;
-                A%=K;
-            }
-            long long temp=stoi(s.substr(10*divlen, modlen));
-            temp%=K;
-            temp*prevmod[divlen*10];
-            temp%=K;
-            A+=temp;
-            A%=K;
-            A*=prevmod[cur_pos];
-            A%=K;
-            int temp_mod=(A+cur_mod)%K;
-            ret+=sol(left-temp, temp_mod, cur_pos+s.length());
-        }
-    }
-    return ret;
-}
+ll sol(int )
 
-int main(){
-    ios_base::sync_with_stdio(false);
+int main() {
+    ios_base :: sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
+    int N;
     cin >> N;
-    memset(cache, -1, sizeof(cache));
-    int total_length=0;
-    for(int i=0; i<N; i++){
-        string s;
-        cin >> s;
-        V.push_back(s);
-        total_length+=s.length();
-    }
-    cin >> K;
-    prevmod[0]=1;
-    for(int i=1; i<=total_length; i++){
-        if(i==1) prevmod[i]=10%K;
-        else prevmod[i]=(prevmod[i-1]*10%K)%K;
-    }
-    long long a=1;
-    for(int i=1; i<=N; i++){
-        a*=i;
-    }
-    int temp=0;
-    for(int i=0; i<N; i++){
-        temp+=(1<<i);
-    }
-    long long b=sol(temp, 0, 0);
-
-    long long c=gcd(a, b);
-    a/=c;
-    b/=c;
-    cout << b << "/" << a;
+    
+    cout << sol(1);
+    
     return 0;
 }
