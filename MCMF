@@ -1,55 +1,68 @@
 #include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
+
 using namespace std;
+
 typedef long long ll;
+//typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 1e9+7;
 
-vector<int> graph[805];
-int flow[805][805]={};
-int cap[805][805]={};
-int d[805][805]={};
-int inqueue[805]={};
-int visited[805];
-int dist[805];
-int s=802;
-int e=803;
+vector<int> graph[205];
+int d[205][205]={};
+int c[205][205]={};
+int f[205][205]={};
+int inqueue[205]={};
+int vis[205]={};
+int dist[205]={};
+int s=201;
+int e=202;
 
-int main(){
-    ios_base::sync_with_stdio(false);
+int main() {
+    ios_base :: sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
     int N, M;
     cin >> N >> M;
     for(int i=1; i<=N; i++){
+        cin >> c[s][i];
         graph[s].push_back(i);
         graph[i].push_back(s);
-        cap[s][i]=1;
     }
-    for(int i=401; i<=M+400; i++){
-        graph[e].push_back(i);
-        graph[i].push_back(e);
-        cap[i][e]=1;
+    for(int i=1; i<=M; i++){
+        cin >> c[100+i][e];
+        graph[100+i].push_back(e);
+        graph[e].push_back(100+i);
     }
-    for(int i=1; i<=N; i++){
-        int a;
-        cin >> a;
-        for(int j=0; j<a; j++){
-            int b, c;
-            cin >> b >> c;
-            graph[i].push_back(b+400);
-            graph[b+400].push_back(i);
-            cap[i][b+400]=1;
-            d[i][b+400]=(-1)*c;
-            d[b+400][i]=c;
+    for(int i=1; i<=M; i++){
+        for(int j=1; j<=N; j++){
+            cin >> c[j][100+i];
         }
     }
-    int ans=0;
+    for(int i=1; i<=M; i++){
+        for(int j=1; j<=N; j++){
+            graph[100+i].push_back(j);
+            graph[j].push_back(100+i);
+            cin >> d[j][100+i];
+            d[100+i][j]=-d[j][100+i];
+        }
+    }
     int result=0;
+    int maxflow=0;
     while(1){
-        memset(visited, -1, sizeof(visited));
+        memset(vis, -1, sizeof(vis));
         memset(inqueue, 0, sizeof(inqueue));
-        fill(dist, dist+804, 987654321);
+        fill(dist, dist+204, INF);
         queue<int> Q;
         dist[s]=0;
+        vis[s]=0;
         inqueue[s]=1;
         Q.push(s);
         while(!Q.empty()){
@@ -57,27 +70,29 @@ int main(){
             Q.pop();
             inqueue[x]=0;
             for(auto i : graph[x]){
-                if(dist[i]<=dist[x]+d[x][i]||cap[x][i]<=flow[x][i]) continue;
-                visited[i]=x;
-                dist[i]=dist[x]+d[x][i];
-                if(inqueue[i]==0){
-                    Q.push(i);
-                    inqueue[i]=1;
+                if(dist[i]>dist[x]+d[x][i]&&c[x][i]>f[x][i]){
+                    dist[i]=dist[x]+d[x][i];
+                    vis[i]=x;
+                    if(inqueue[i]==0){
+                        Q.push(i);
+                        inqueue[i]=1;
+                    }
                 }
             }
         }
-        if(visited[e]==-1) break;
-        int f=987654321;
-        for(int i=e; i!=s; i=visited[i]){
-            f=min(f, cap[visited[i]][i]-flow[visited[i]][i]);
+        if(vis[e]==-1) break;
+        int a=INF;
+        for(int i=e; i!=s; i=vis[i]){
+            a=min(a, c[vis[i]][i]-f[vis[i]][i]);
         }
-        for(int i=e; i!=s; i=visited[i]){
-            result-=f*d[visited[i]][i];
-            flow[visited[i]][i]+=f;
-            flow[i][visited[i]]-=f;
+        for(int i=e; i!=s; i=vis[i]){
+            f[vis[i]][i]+=a;
+            f[i][vis[i]]-=a;
+            result+=d[vis[i]][i]*a;
         }
-        ans+=f;
+        maxflow+=a;
     }
-    cout << ans << "\n" << result;
+    cout << maxflow << "\n";
+    cout << result;
     return 0;
 }
