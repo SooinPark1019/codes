@@ -1,0 +1,79 @@
+#include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
+
+using namespace std;
+
+typedef long long ll;
+typedef __int128 i128;
+typedef double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 998244353;
+
+struct mystruct{
+    ll leftsum, rightsum, maxsum, totalsum;
+};
+
+vector<mystruct> Seg;
+vector<long long> V;
+
+void make_seg(int node, int start, int end){
+    //cout << start << " " << end << endl;
+    if(start==end){
+        Seg[node].leftsum=V[start];
+        Seg[node].rightsum=V[start];
+        Seg[node].maxsum=V[start];
+        Seg[node].totalsum=V[start];
+    }
+    else{
+        long long mid=(start+end)/2;
+        make_seg(node*2, start, mid);
+        make_seg(node*2+1, mid+1, end);
+        Seg[node].leftsum=max(Seg[node*2].leftsum, Seg[node*2].totalsum+Seg[node*2+1].leftsum);
+        Seg[node].rightsum=max(Seg[node*2+1].rightsum, Seg[node*2].rightsum+Seg[node*2+1].totalsum);
+        Seg[node].maxsum=max({Seg[node*2].maxsum, Seg[node*2+1].maxsum, Seg[node*2].rightsum+Seg[node*2+1].leftsum});
+        Seg[node].totalsum=Seg[node*2].totalsum+Seg[node*2+1].totalsum;
+    }
+    return;
+}
+
+mystruct sum_seg(int node, int start, int end, int left, int right){
+    if(left>end||right<start) return {-1*LNF, -1*LNF, -1*LNF, 0};
+    if(left<=start&&end<=right) return Seg[node];
+    int mid=(start+end)/2;
+    mystruct a=sum_seg(node*2, start, mid, left, right);
+    mystruct b=sum_seg(node*2+1, mid+1, end, left, right);
+    ll leftsum=max(a.leftsum, a.totalsum+b.leftsum);
+    ll rightsum=max(b.rightsum, b.totalsum+a.rightsum);
+    ll maxsum=max({a.maxsum, b.maxsum, a.rightsum+b.leftsum});
+    ll totalsum=a.totalsum+b.totalsum;
+    return {leftsum, rightsum, maxsum, totalsum};
+}
+
+int main() {
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N;
+    cin >> N;
+    Seg.resize(N*4);
+    for(int i=0; i<N; i++){
+        ll a;
+        cin >> a;
+        V.push_back(a);
+    }
+    make_seg(1, 0, N-1);
+    int M;
+    cin >> M;
+    while(M--){
+        int a, b;
+        cin >> a >> b;
+        cout << sum_seg(1, 0, N-1, a-1, b-1).maxsum << "\n";
+    }
+    return 0;
+}
