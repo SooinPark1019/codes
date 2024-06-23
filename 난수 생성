@@ -1,0 +1,11 @@
+#include <random>
+ 
+int main(void)
+{
+    std::random_device rd; 
+    std::mt19937 mt(rd()); 
+    std::uniform_int_distribution<int> dist(0, 99); 
+    auto randNum = dist(mt);
+ 
+    return 0;
+}
