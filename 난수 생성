@@ -2,8 +2,7 @@
  
 int main(void)
 {
-    std::random_device rd; 
-    std::mt19937 mt(rd()); 
+    std::mt19937 mt(chrono::steady_clock::now().time_since_epoch().count()); 
     std::uniform_int_distribution<int> dist(0, 99); 
     auto randNum = dist(mt);
  
