@@ -16,8 +16,10 @@ ll generaterandomprime(){
     }
 }
 
-template<ll P,ll M> struct Hashing {
+struct Hashing {
+    ll P, M;
     vector<ll> h, p;
+    Hashing(ll P, ll M) : P(P), M(M){}
     void build(const string &s){
         int n = s.size();
         h = p = vector<long long>(n+1); p[0] = 1;
