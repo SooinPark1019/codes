@@ -29,4 +29,8 @@ template<ll P,ll M> struct Hashing {
         return (res + M) % M;
     }
 };
-Hashing<ll(1e5+9), ll(1e9+9)>H1;
+ll mod1=generaterandomprime();
+ll mod2=generaterandomprime();
+uniform_int_distribution<ll> small(1000, 10000);
+ll key=small(mt);
+
