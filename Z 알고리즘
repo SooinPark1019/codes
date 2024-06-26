@@ -1,0 +1,65 @@
+#include <ext/rope>
+#include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define PB push_back
+#define fi first
+#define se second
+#define all(v) (v).begin(), (v).end()
+#define For(i,j,k) for (int i=(int)(j);i<=(int)(k);i++)
+#define Rep(i,j,k) for (int i=(int)(j);i>=(int)(k);i--)
+#define debug1(x,y) cout << x << " :: " << y << " "
+#define coutn cout << "\n"
+#define debug2 puts("--@222%--")
+#define debug3 puts("--@333%--")
+
+using namespace __gnu_cxx;
+using namespace std;
+
+typedef long long ll;
+//typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 1e9+7;
+
+
+
+int main() {
+    ios_base :: sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
+    string S;
+    cin >> S;
+    int N=S.length();
+    vector<int> Z;
+    Z.push_back(S.length());
+    int L=0, R=0;
+    for(int i=1; i<S.length(); i++){
+        if(i>R){
+            L=i;
+            R=i;
+            while(R<N&&S[R]==S[R-L]) R++;
+            Z.push_back(R-L);
+            R--;
+        }
+        else{
+            if(Z[i-L]<=R-i){
+                Z.push_back(Z[i-L]);
+            }
+            else{
+                L=i;
+                while(R<N&&S[R]==S[R-L]) R++;
+                Z.push_back(R-L);
+                R--;
+            }
+        }
+    }
+    return 0;
+}
