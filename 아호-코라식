@@ -30,6 +30,10 @@ struct Trie{
         fill(go, go+30, nullptr);
         output=false;
     }
+    ~Trie(){
+        for(int i=0; i<26; i++)
+            if(go[i]) delete go[i];
+    }
     void insert(const string& S, int a){
         if(a==S.length()) output=true;
         else{
