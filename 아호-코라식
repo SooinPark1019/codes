@@ -1,0 +1,97 @@
+#include <ext/rope>
+#include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define PB push_back
+#define fi first
+#define se second
+#define all(v) (v).begin(), (v).end()
+
+using namespace __gnu_cxx;
+using namespace std;
+
+typedef long long ll;
+//typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 998244353;
+
+struct Trie{
+    Trie *go[30];
+    Trie *fail;
+    bool output;
+    Trie(){
+        fill(go, go+30, nullptr);
+        output=false;
+    }
+    void insert(const string& S, int a){
+        if(a==S.length()) output=true;
+        else{
+            int nxt=S[a]-'a';
+            if(!go[nxt]) go[nxt]=new Trie;
+            go[nxt]->insert(S, a+1);
+        }
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int N;
+    cin >> N;
+    Trie* root=new Trie;
+    root->fail=root;
+    for(int i=0; i<N; i++){
+        string S;
+        cin >> S;
+        root->insert(S, 0);
+    }
+    queue<Trie*> Q;
+    Q.push(root);
+    while(!Q.empty()){
+        Trie* cur=Q.front();
+        Q.pop();
+        for(int i=0; i<26; i++){
+            if(!cur->go[i]) continue;
+            Trie* nxt=cur->go[i];
+            if(cur==root) nxt->fail=root;
+            else{
+                Trie* x=cur->fail;
+                while(x!=root&&!x->go[i]) x=x->fail;
+                if(x->go[i]) x=x->go[i];
+                nxt->fail=x;
+            }
+            if(nxt->fail->output) nxt->output=true;
+            Q.push(nxt);
+        }
+    }
+    int M;
+    cin >> M;
+    for(int i=0; i<M; i++){
+        string S;
+        cin >> S;
+        Trie* cur=root;
+        int ans=0;
+        for(auto c : S){
+            int nxt=c-'a';
+            while(cur!=root&&!cur->go[nxt]) cur=cur->fail;
+            if(cur->go[nxt]) cur=cur->go[nxt];
+            if(cur->output){
+                ans=1;
+                break;
+            }
+        }
+        if(ans==1) cout << "YES\n";
+        else cout << "NO\n";
+    }
+    delete root;
+    return 0;
+}
