@@ -1,13 +1,13 @@
 vector<ll> V(MAXN, 0);
 vector<int> graph[MAXN];
-ll sz[MAXN], dep[MAXN], top[MAXN], par[MAXN], in[MAXN], out[MAXN], C[MAXN];
+ll sz[MAXN], dep[MAXN], top[MAXN], par[MAXN], in[MAXN], out[MAXN], C[MAXN], chk[MAXN];
 vector<int> child[MAXN];
 int pv=0, N;
 
 struct Seg{
     vector<ll> seg;
     void init(){
-        seg.resize(4*N);
+        seg.resize(4*N+4);
     }
     void update_seg(int node, int start, int end, int index, long long diff){
         //cout << node << " " << start << " " << end << " " << index << " " << diff << endl;
@@ -22,6 +22,7 @@ struct Seg{
         return;
     }
     long long sum_seg(int node, int start, int end, int left, int right){
+        //cout << node << " " << start << " " << end << " " << left << " " << right << "\n";
         if(left>right) return 0;
         if(left>end||right<start) return 0;
         if(left<=start&&end<=right) return seg[node];
@@ -33,6 +34,7 @@ struct Seg{
 Seg seg;
 
 void dfs1(int cur_node, int p){
+    chk[cur_node]=1;
     //cout << cur_node << "\n";
     for(auto i : graph[cur_node]){
         if(i==p) continue;
@@ -43,6 +45,7 @@ void dfs1(int cur_node, int p){
 }
 
 void dfs2(int cur_node){
+    chk[cur_node]=1;
     sz[cur_node]=1;
     for(auto &i : child[cur_node]){
         dep[i]=dep[cur_node]+1;
@@ -53,7 +56,8 @@ void dfs2(int cur_node){
 }
 
 void dfs3(int cur_node){
-    in[cur_node]=pv++;
+    chk[cur_node]=1;
+    in[cur_node]=++pv;
     for(auto i : child[cur_node]){
         if(i==child[cur_node][0]) top[i]=top[cur_node];
         else top[i]=i;
@@ -63,7 +67,8 @@ void dfs3(int cur_node){
 }
 
 void update(int node, int val){
-    seg.update_seg(1, 0, N-1, in[node], val);
+    //cout << in[node] << " " << val << "\n";
+    seg.update_seg(1, 0, N, in[node], val);
 }
 
 ll query(int a, int b){
@@ -72,13 +77,13 @@ ll query(int a, int b){
     while(top[a]!=top[b]){
         if(dep[top[a]]<dep[top[b]]) swap(a, b);
         int st=top[a];
-        //cout << a << " " << st << "\n";
-        ret+=seg.sum_seg(1, 0, N-1, in[st], in[a]);
+        //cout << in[a] << " " << in[st] << "\n";
+        ret+=seg.sum_seg(1, 0, N, in[st], in[a]);
         //cout << ret << "\n";
         a=par[st];
     }
     if(dep[a]>dep[b]) swap(a, b);
     //cout << a << " " << b << "\n";
-    ret+=seg.sum_seg(1, 0, N-1, in[a], in[b]);
+    ret+=seg.sum_seg(1, 0, N, in[a], in[b]);
     return ret;
 }
