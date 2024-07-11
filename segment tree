@@ -64,3 +64,27 @@ int main(){
     }
     return 0;
 }
+
+struct Seg{
+    vector<ll> seg;
+    Seg(){
+        seg.resize(4*N);
+    }
+    void update_seg(int node, int start, int end, int index, long long diff){
+        if(index<start||index>end) return;
+        if(start==end) seg[node]+=diff;
+        else{
+            int mid=(start+end)/2;
+            update_seg(node*2, start, mid, index, diff);
+            update_seg(node*2+1, mid+1, end, index, diff);
+            seg[node]=max(seg[node*2], seg[node*2+1]);
+        }
+        return;
+    }
+    long long sum_seg(int node, int start, int end, int left, int right){
+        if(left>end||right<start) return 0;
+        if(left<=start&&end<=right) return seg[node];
+        int mid=(start+end)/2;
+        return max(sum_seg(node*2, start, mid, left, right), sum_seg(node*2+1, mid+1, end, left, right));
+    }
+};
