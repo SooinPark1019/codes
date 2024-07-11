@@ -1,8 +1,7 @@
 vector<ll> V(MAXN, 0);
-vector<pair<int, ll>> graph[MAXN];
+vector<int> graph[MAXN];
 ll sz[MAXN], dep[MAXN], top[MAXN], par[MAXN], in[MAXN], out[MAXN], C[MAXN];
 vector<int> child[MAXN];
-vector<ll> E(MAXN);
 int pv=0, N;
 
 struct Seg{
@@ -34,11 +33,12 @@ struct Seg{
 Seg seg;
 
 void dfs1(int cur_node, int p){
+    //cout << cur_node << "\n";
     for(auto i : graph[cur_node]){
-        if(i.first==p) continue;
-        par[i.first]=cur_node;
-        child[cur_node].push_back(i.first);
-        dfs1(i.first, cur_node);
+        if(i==p) continue;
+        par[i]=cur_node;
+        child[cur_node].push_back(i);
+        dfs1(i, cur_node);
     }
 }
 
@@ -67,14 +67,18 @@ void update(int node, int val){
 }
 
 ll query(int a, int b){
+    //cout << a << " " << b << "\n";
     ll ret=0;
     while(top[a]!=top[b]){
         if(dep[top[a]]<dep[top[b]]) swap(a, b);
         int st=top[a];
-        ret=max(ret, seg.sum_seg(1, 0, N-1, in[st], in[a]));
+        //cout << a << " " << st << "\n";
+        ret+=seg.sum_seg(1, 0, N-1, in[st], in[a]);
+        //cout << ret << "\n";
         a=par[st];
     }
     if(dep[a]>dep[b]) swap(a, b);
-    ret=max(ret, seg.sum_seg(1, 0, N-1, in[a], in[b]));
+    //cout << a << " " << b << "\n";
+    ret+=seg.sum_seg(1, 0, N-1, in[a], in[b]);
     return ret;
 }
