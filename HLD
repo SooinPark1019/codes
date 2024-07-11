@@ -1,6 +1,6 @@
 vector<ll> V(MAXN, 0);
 vector<int> graph[MAXN];
-ll sz[MAXN], dep[MAXN], top[MAXN], par[MAXN], in[MAXN], out[MAXN], C[MAXN], chk[MAXN];
+ll sz[MAXN], dep[MAXN], top[MAXN], par[MAXN], in[MAXN], out[MAXN];
 vector<int> child[MAXN];
 int pv=0, N;
 
