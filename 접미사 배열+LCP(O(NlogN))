@@ -22,7 +22,7 @@ void constructSA(){
         node[0].rank.first = pos[node[0].sa] = 0;
  
         for(int i=1; i<N; i++){
-            if({temp, node[i-1].rank.second} == node[i].rank) node[i].rank.first = M;
+            if(pii(temp, node[i-1].rank.second) == node[i].rank) node[i].rank.first = M;
             else{
                 temp = node[i].rank.first;
                 node[i].rank.first = ++M;
