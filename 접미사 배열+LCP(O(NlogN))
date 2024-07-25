@@ -1,63 +1,53 @@
 string S;
 int N, sa[MAX], pos[MAX], lcp[MAX];
+int cnt[MAX+1] = {0};
 
 struct SuffixNode{
     int sa;
-    pair<int, int> rank;
+    P rank;
     bool operator <(const SuffixNode &O)const{ return rank < O.rank; }
 };
 
-void constructSA(){
+SuffixNode node[MAX], nodeTemp[MAX];
+
+void constructSA() {
     N = S.length();
-    SuffixNode node[MAX], nodeTemp[MAX];
-    for(int i=0; i<N; i++){
+    for (int i = 0; i < N; i++) {
         node[i].sa = i;
-        node[i].rank = {S[i]-'a', i<N-1 ? S[i+1]-'a' : -1};
+        node[i].rank = P(S[i] - 'a', i + 1 < N ? S[i + 1] - 'a' : -1);
     }
 
-    sort(node, node+N);
- 
-    for(int d=2; d<N; d*=2){
-        int M = 0, temp = node[0].rank.first;
-        node[0].rank.first = pos[node[0].sa] = 0;
- 
-        for(int i=1; i<N; i++){
-            if(pii(temp, node[i-1].rank.second) == node[i].rank) node[i].rank.first = M;
-            else{
-                temp = node[i].rank.first;
-                node[i].rank.first = ++M;
+    sort(node, node + N);
+
+    for (int d = 2; d < N; d *= 2) {
+        int rank = 0;
+        int prevRank = node[0].rank.first;
+        node[0].rank.first = rank;
+        pos[node[0].sa] = 0;
+
+        for (int i = 1; i < N; i++) {
+            if (node[i].rank == P(prevRank, node[i - 1].rank.second)) {
+                node[i].rank.first = rank;
+            } else {
+                prevRank = node[i].rank.first;
+                node[i].rank.first = ++rank;
             }
             pos[node[i].sa] = i;
         }
-        M++;
- 
-        int cnt[MAX+1] = {0};
-        for(int i=0; i<N; i++){
-            int j = node[i].sa + d;
-            node[i].rank.second = (j < N ? node[pos[j]].rank.first : -1);
-            cnt[node[i].rank.second+1]++;
+
+        for (int i = 0; i < N; i++) {
+            int nextIndex = node[i].sa + d;
+            node[i].rank.second = nextIndex < N ? node[pos[nextIndex]].rank.first : -1;
         }
-        for(int i=1; i<M+1; i++)
-            cnt[i] += cnt[i-1];
-        for(int i=N-1; i>=0; i--)
-            nodeTemp[--cnt[node[i].rank.second+1]] = node[i];
- 
-        fill(cnt, cnt+M+1, 0);
-        for(int i=0; i<N; i++)
-            cnt[nodeTemp[i].rank.first]++;
-        for(int i=1; i<M; i++)
-            cnt[i] += cnt[i-1];
-        for(int i=N-1; i>=0; i--)
-            node[--cnt[nodeTemp[i].rank.first]] = nodeTemp[i];
+
+        sort(node, node + N);
     }
- 
-    for(int i=0; i<N; i++){
+
+    for (int i = 0; i < N; i++) {
         sa[i] = node[i].sa;
-        pos[sa[i]] = i;
     }
 }
-
-
+ 
 void constructLCP(){
     for(int i=0, k=0; i<N; i++, k=max(k-1, 0)){
         if(pos[i] == N-1) continue;
