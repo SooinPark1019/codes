@@ -1,0 +1,135 @@
+#include <ext/rope>
+#include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+//#pragma GCC optimize ("O3")
+//#pragma GCC optimize ("Ofast")
+//#pragma GCC optimize ("unroll-loops")
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define PB push_back
+#define fi first
+#define se second
+#define all(v) (v).begin(), (v).end()
+
+using namespace __gnu_cxx;
+using namespace std;
+
+typedef long long ll;
+//typedef __int128 i128;
+typedef long double ld;
+const int INF = 0x3f3f3f3f;
+const double EPS = 1e-9;
+const ll LNF = 1e18;
+const ll mod = 998244353;
+
+ll a[500005], child[500005][2], sz[500005], val[500005], ans[500005];
+ll total=0;
+int root;
+
+void dfs(int cur_node){
+    sz[cur_node]=1;
+    for(int i=0; i<2; i++){
+        if(child[cur_node][i]!=0) dfs(child[cur_node][i]);
+        else sz[child[cur_node][i]]=0;
+    }
+    val[cur_node]=(sz[child[cur_node][0]]+1)*(sz[child[cur_node][1]]+1)*a[cur_node];
+    sz[cur_node]+=sz[child[cur_node][0]]+sz[child[cur_node][1]];
+}
+
+void dfs2(int cur_node, ll dec){
+    //cout <<  "cur_node : " << cur_node << endl;
+    //cout << total << " " << val[cur_node] << " " << dec << endl;
+    ans[cur_node]=total-val[cur_node]-dec;
+    int x=child[cur_node][0];
+    vector<int> lr;
+    while(x!=0){
+        //cout << "lr : " << x << endl;
+        ans[cur_node]-=val[x];
+        lr.push_back(x);
+        x=child[x][1];
+    }
+    vector<int> rl;
+    x=child[cur_node][1];
+    while(x!=0){
+        //cout << "rl : " << x << endl;
+        ans[cur_node]-=val[x];
+        rl.push_back(x);
+        x=child[x][0];
+    }
+    //cout << "ans : " << ans[cur_node] << endl;
+    int i=0, j=0;
+    vector<pii> V;
+    while(i<lr.size()||j<rl.size()){
+        //cout << i << " " << j << endl;
+        if(j>=rl.size()||(i<lr.size()&&j<rl.size()&&a[lr[i]]<a[rl[j]])){
+            V.push_back({lr[i], 0});
+            i++;
+        }
+        else{
+            V.push_back({rl[j], 1});
+            j++;
+        }
+    }
+    /*if(cur_node==6){
+        for(auto i : V){
+            cout << i.first << " " << i.second << endl;
+        }
+    }*/
+    ll cursz=0;
+    for(int i=V.size()-1; i>=0; i--){
+        ans[cur_node]+=a[V[i].first]*(cursz+1)*(sz[child[V[i].first][V[i].second]]+1);
+        cursz+=sz[child[V[i].first][V[i].second]]+1;
+    }
+    for(int i=0; i<2; i++){
+        //if(cur_node==6) cout << i << endl;
+        if(child[cur_node][i]!=0)dfs2(child[cur_node][i], dec+a[cur_node]*(sz[child[cur_node][1-i]]+1));
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    int TC;
+    cin >> TC;
+    while(TC--){
+        int N;
+        cin >> N;
+        for(int i=0; i<=N; i++){
+            a[i]=0;
+            child[i][0]=0;
+            child[i][1]=0;
+            sz[i]=0;
+            val[i]=0;
+            ans[i]=0;
+        }
+        for(int i=1; i<=N; i++){
+            cin >> a[i];
+        }
+        stack<int> S;
+        for(int i=1; i<=N; i++){
+            while(!S.empty()&&a[S.top()]>a[i]){
+                child[i][0]=S.top();
+                S.pop();
+            }
+            if(S.empty()) root=i;
+            else{
+                child[S.top()][1]=i;
+            }
+            S.push(i);
+        }
+        dfs(root);
+        total=0;
+        for(int i=1; i<=N; i++){
+            //cout << "val : " << val[i] << "\n";
+            total+=val[i];
+        }
+        dfs2(root, 0);
+        for(int i=1; i<=N; i++){
+            cout << ans[i] << " ";
+        }
+        cout << "\n";
+    }
+    return 0;
+}
