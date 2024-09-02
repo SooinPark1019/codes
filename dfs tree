@@ -1,0 +1,74 @@
+#include <iostream>
+#include <vector>
+ 
+using namespace std;
+ 
+const int maxN = 300005;
+ 
+int bridgec;
+int articulation_points;
+vector<int> adj [maxN];
+int lvl [maxN];
+int dp [maxN];
+int down[maxN];
+int cycleId[maxN];
+int cidx;
+ 
+void dfs (int vertex, int p=0) {
+  dp[vertex] = 0;
+  cycleId[vertex]=vertex;
+  int f=0;
+  int cnt=0, pre=0;
+  for (int nxt : adj[vertex]) {
+    if(vertex==p)continue;
+    if (lvl[nxt] == 0) { // child
+      lvl[nxt] = lvl[vertex] + 1;
+      dfs(nxt, vertex);
+      dp[vertex] += dp[nxt];
+      cnt+=dp[vertex]==pre;
+    } else if (lvl[nxt] < lvl[vertex]) { // back edge
+        dp[vertex]++;
+        dp[nxt]--;
+        down[nxt]++;
+        f=1;
+    }
+    pre=dp[vertex];
+  }
+ 
+  if (lvl[vertex] > 1 && dp[vertex] == 0) { // bridge
+    bridgec++;
+  }
+
+  if((!p && cnt>1) || (p && cnt))articulation_points++; //articulation points
+
+  if(f){ // cycle compression
+    cycleId[vertex]=cidx++;
+  }
+  else{
+    for(int v:adj[vertex]){
+      if(cycleId[v]!=v && !down[v])cycleId[vertex]=cycleId[v];
+    }
+  }
+}
+ 
+int main () {
+  /* problem statement: given a connected graph. calculate the number of bridges. */
+  ios::sync_with_stdio(false);
+ 
+  int vertexc, edgec;
+  cin >> vertexc >> edgec;
+ 
+  for (int i = 0; i < edgec; i++) {
+    int u, v;
+    cin >> u >> v;
+ 
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+  }
+  
+  lvl[1] = 1;
+  cidx=vertexc+1;
+  dfs(1);
+ 
+  cout << bridgec << endl;
+}
