@@ -1,26 +1,21 @@
-int reduce(array<int, K> &b, int x) {  // reducing x using basis vectors b
-	for (int i = K - 1; i >= 0; i--) {
-		if (x & (1 << i)) {  // check if the ith bit is set
-			x ^= b[i];
-		}
-	}
-	return x;
+int reduce(vector<int>& b, int x){
+    for(int i=K-1; i>=0; i--){
+        if(x&(1<<i)){
+            x=x^b[i];
+        }
+    }
+    return x;
 }
 
-bool add(array<int, K> &b, int x) {
-	x = reduce(b, x);  // reduce x using current basis
-	if (x != 0) {
-		for (int i = K - 1; i >= 0; i--) {
-			if (x & (1 << i)) {
-				b[i] = x;  // add x to the basis if it is independent
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool check(array<int, K> &b, int x) {
-	return (reduce(b, x) ==
-	        0);  // if x reduces to 0, it can be represented by the basis
+bool add(vector<int>& b, int x){
+    int x=reduce(b, x);
+    if(x!=0){
+        for(int i=K-1; i>=0; i--){
+            if(x&(1<<i)){
+                b[i]=x;
+                return true;
+            }
+        }
+    }
+    return false;
 }
